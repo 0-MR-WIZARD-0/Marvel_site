@@ -1,38 +1,55 @@
-import { useState } from "react";
-import AppHeader from "../appHeader/AppHeader";
-import RandomChar from "../randomChar/RandomChar";
-import CharList from "../charList/CharList";
-import CharInfo from "../charInfo/CharInfo";
-import ErrorBoundary from "../errorBoundary/ErrorBoundary";
+// router v5
+// import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 
-import decoration from '../../resources/img/vision.png';
+// router v6
+import { lazy, Suspense } from 'react';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
+import AppHeader from "../appHeader/AppHeader";
+import Spinner from '../spinner/Spinner';
+
+const Page404 = lazy(()=> import('../pages/Page404'))
+const MainPage = lazy(()=> import('../pages/MainPage'))
+const ComicsPage = lazy(()=> import('../pages/ComicsPage'))
+const SingleComicPage = lazy(()=> import('../pages/singleComicPage/SingleComicPage'))
 
 const App = () => {
-
-    const [selectedChar, setChar] = useState(null);
-
-    const onCharSelected = (id) => {
-        setChar(id)
-    }
-
     return (
+
+        // router v5
+
+        // <Router>
+        //     <div className="app">
+        //         <AppHeader/>
+        //         <main>
+        //             <Switch>
+        //                 <Route exact path="/">
+        //                     <MainPage/>
+        //                 </Route>
+        //                 <Route exact path="/comics">
+        //                     <ComicsPage/>
+        //                 </Route>   
+        //            </Switch> 
+        //         </main>
+        //     </div>
+        // </Router> 
+
+        // router v6
+
+        <Router>
             <div className="app">
                 <AppHeader/>
                 <main>
-                    <ErrorBoundary>
-                        <RandomChar/>
-                    </ErrorBoundary>
-                    <div className="char__content">
-                        <ErrorBoundary>
-                            <CharList onCharSelected={onCharSelected}/>
-                        </ErrorBoundary>
-                        <ErrorBoundary>
-                            <CharInfo charId = {selectedChar}/>
-                        </ErrorBoundary>
-                    </div>
-                    <img className="bg-decoration" src={decoration} alt="vision"/>
+                    <Suspense fallback={<Spinner/>}>
+                        <Routes>
+                            <Route path="/" element={<MainPage/>}/>
+                            <Route path="/comics/*" element={<ComicsPage/>}/>
+                            <Route path="/comics/:comicId" element={<SingleComicPage/>}/> 
+                            <Route path='*' element={<Page404/>}/> 
+                        </Routes> 
+                    </Suspense>
                 </main>
             </div>
+        </Router> 
     )
 }
 
